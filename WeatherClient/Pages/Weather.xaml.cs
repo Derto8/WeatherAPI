@@ -20,9 +20,11 @@ namespace WeatherClient.Pages
     /// </summary>
     public partial class Weather : Page
     {
-        public Weather()
+        MainWindow mainWindow;
+        public Weather(MainWindow mainWindow)
         {
             InitializeComponent();
+            this.mainWindow = mainWindow;
         }
     }
 }

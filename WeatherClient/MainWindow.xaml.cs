@@ -23,6 +23,18 @@ namespace WeatherClient
         public MainWindow()
         {
             InitializeComponent();
+            OpenPage(pages.weather);
+        }
+
+        public enum pages
+        {
+            weather
+        }
+
+        public void OpenPage(pages page)
+        {
+            if (page == pages.weather)
+                frame.Navigate(new Pages.Weather(this));
         }
     }
 }

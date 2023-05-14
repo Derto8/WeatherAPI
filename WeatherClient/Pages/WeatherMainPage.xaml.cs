@@ -27,7 +27,7 @@ namespace WeatherClient.Pages
         private MainWindow mainWindow;
         private BrushConverter bc = new BrushConverter();
         private HubConnection? HubConnection;
-        private List<Weather> weatherList;
+        private List<Weather> weathersList;
         private string Url;
         public WeatherMainPage(MainWindow mainWindow)
         {
@@ -43,7 +43,7 @@ namespace WeatherClient.Pages
                 .WithUrl(Url)
                 .Build();
 
-            HubConnection.On<WeatherData>("Send", message => weatherList = message.WeathersList);
+            HubConnection.On<WeatherData>("Send", message => weathersList = message.WeathersList);
             return HubConnection.StartAsync();
         }
 
@@ -56,11 +56,19 @@ namespace WeatherClient.Pages
         {
             await InitSignalRConnection();
             buttonConnect.Foreground = (Brush)bc.ConvertFrom("#00CF00");
+            if(weathersList is not null )
+            {
 
+            }
             while (true)
             {
 
             }
+        }
+
+        private void FillDataGUI()
+        {
+            
         }
 
         private void Back(object sender, RoutedEventArgs e)

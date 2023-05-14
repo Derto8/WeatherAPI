@@ -1,4 +1,4 @@
-﻿<Page x:Class="WeatherClient.Pages.Weather"
+﻿<Page x:Class="WeatherClient.Pages.WeatherMainPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -6,12 +6,14 @@
       xmlns:local="clr-namespace:WeatherClient.Pages"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="Weather">
+      Title="WeatherMainPage">
 
     <Grid Background="White">
         <Label x:Name="date" Foreground="Black" FontSize="36" Content="30" FontWeight="Bold" Height="61" Width="66" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10,10,0,0"/>
         <Label Foreground="#bfb4b4" Content="May,&#xD;&#xA;Today" Height="56" Margin="81,10,0,0" FontSize="16" Width="123" VerticalAlignment="Top" HorizontalAlignment="Left"/>
         <Label Foreground="#bfb4b4" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Pressure&#xD;&#xA;mm HG" Height="56" Margin="0,12,289,0" FontSize="16" Width="82" VerticalAlignment="Top" HorizontalAlignment="Right"/>
+        <Button Margin="273,15,444,389" Background="White" x:Name="buttonConnect" BorderBrush="Black" BorderThickness="3" Click="ConnectServer" Content="Запустить" Foreground="#bfb4b4" FontSize="14"/>
+        <Button Margin="209,15,532,389" Background="White" BorderBrush="Black" BorderThickness="3" Click="Back" Content="ᐊ" Foreground="#bfb4b4" FontSize="24"/>
         <Grid Height="2" Margin="10,71,10,0" Background="#e0dede" Width="NaN" VerticalAlignment="Top"/>
         <Grid Height="316" Margin="10,76,10,0" Width="NaN" VerticalAlignment="Top">
             <Grid Height="NaN" Margin="10,10,655,10">
@@ -58,7 +60,7 @@
         <Label Foreground="#bfb4b4" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Feels Like" Height="56" Margin="0,10,20,0" FontSize="16" Width="82" VerticalAlignment="Top" HorizontalAlignment="Right"/>
         <Grid Height="2" Margin="10,397,10,0" Background="#e0dede" Width="NaN" VerticalAlignment="Top"/>
         <Label FontSize="16" Foreground="#bfb4b4"   Content="UV Index 5, average" Height="36" Margin="20,404,0,0" Width="171" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-        <Label FontSize="16" Foreground="#bfb4b4"   Content="Magnetic field Quiet " Height="36" Margin="229,404,0,0" Width="171" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <Label FontSize="16" Foreground="#bfb4b4"   Content="Magnetic field Quiet " Height="36" Margin="229,404,0,0" Width="191" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <Button Margin="361,15,380,389" Background="White" BorderBrush="Black" BorderThickness="3" Click="Forward" Content="ᐅ" Foreground="#bfb4b4" FontSize="24"/>
     </Grid>
-
 </Page>

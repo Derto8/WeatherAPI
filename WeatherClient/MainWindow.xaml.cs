@@ -34,7 +34,7 @@ namespace WeatherClient
         public void OpenPage(pages page)
         {
             if (page == pages.weather)
-                frame.Navigate(new Pages.Weather(this));
+                frame.Navigate(new Pages.WeatherMainPage(this));
         }
     }
 }

@@ -2,6 +2,8 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,47 +30,50 @@ namespace WeatherClient.Pages
         private BrushConverter bc = new BrushConverter();
         private HubConnection? HubConnection;
         private List<Weather> weathersList;
-        private string Url;
+        private string Url = "http://localhost:5213/weather";
         public WeatherMainPage(MainWindow mainWindow)
         {
             InitializeComponent();
             this.mainWindow = mainWindow;
-            JToken jObject = JObject.Parse("config.json");
-            Url = jObject["ServerConnection"].ToString();
-        }
-
-        private Task InitSignalRConnection()
-        {
             HubConnection = new HubConnectionBuilder()
                 .WithUrl(Url)
                 .Build();
-
-            HubConnection.On<WeatherData>("Send", message => weathersList = message.WeathersList);
-            return HubConnection.StartAsync();
         }
 
-        private void Forward(object sender, RoutedEventArgs e)
+
+        private void GetData(List<Weather> weatherData)
+        {
+            this.weathersList = weatherData;
+        }
+
+        private async void Forward(object sender, RoutedEventArgs e)
         {
 
         }
 
         private async void ConnectServer(object sender, RoutedEventArgs e)
         {
-            await InitSignalRConnection();
-            buttonConnect.Foreground = (Brush)bc.ConvertFrom("#00CF00");
-            if(weathersList is not null )
+            HubConnection.On<List<Weather>>("Send", data => GetData(data));
+            await HubConnection.SendAsync("SendWeatherMessage");
+        }
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
             {
+                await HubConnection.StartAsync();
+                await HubConnection.SendAsync("ClientMessage", $"Подключился пользователь {HubConnection.ConnectionId}");
 
             }
-            while (true)
+            catch (Exception ex)
             {
-
+                await HubConnection.SendAsync("ClientMessage", $"Пользователь не смог подключиться: {ex.Message}");
             }
         }
 
-        private void FillDataGUI()
+        private async void Window_Closing(object sender, RoutedEventArgs e)
         {
-            
+            await HubConnection.InvokeAsync("ClientMessage", $"Пользователь {HubConnection.ConnectionId} отключился выходит из чата");
+            await HubConnection.StopAsync();
         }
 
         private void Back(object sender, RoutedEventArgs e)

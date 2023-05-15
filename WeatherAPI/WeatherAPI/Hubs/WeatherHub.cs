@@ -4,6 +4,7 @@ using System.Diagnostics;
 using WeatherAPI.Interfaces;
 using WeatherSendClient;
 using WeatherModels;
+using System.Collections.Generic;
 
 namespace WeatherAPI.Hubs
 {
@@ -15,7 +16,9 @@ namespace WeatherAPI.Hubs
         {
             Configuration = configuration;
         }
-        public async Task<Task> SendWeatherMessage()
+
+
+        public async Task SendWeatherMessage()
         {
             apiUrl = new Uri(Configuration["UrlGetWeather"]);
             HttpClient httpClient = new HttpClient();
@@ -28,41 +31,42 @@ namespace WeatherAPI.Hubs
             string[] dayCycle = new string[] { "morning", "day", "evening", "night" };
             WeatherData weatherSendClient = new WeatherData();
 
-            for (int i = 0; i < dayCycle.Length; i++)
+            int daysTemp = jObject["forecasts"].Count();
+            for (int i = 0; i < daysTemp; i++)
             {
-                DateTime?[] date = jObject["forecasts"].Select(c => c["date"].ToObject<DateTime?>()).ToArray();
-                string?[] minTemp = jObject["forecasts"].Select(c => c["parts"][dayCycle[i]]["temp_min"].ToObject<string?>()).ToArray();
-                string?[] maxTemp = jObject["forecasts"].Select(c => c["parts"][dayCycle[i]]["temp_max"].ToObject<string?>()).ToArray();
-                string?[] pressure = jObject["forecasts"].Select(c => c["parts"][dayCycle[i]]["pressure_mm"].ToObject<string?>()).ToArray();
-                string?[] humidity = jObject["forecasts"].Select(c => c["parts"][dayCycle[i]]["humidity"].ToObject<string?>()).ToArray();
-                string?[] windSpeed = jObject["forecasts"].Select(c => c["parts"][dayCycle[i]]["wind_speed"].ToObject<string?>()).ToArray();
-                string?[] feelsLike = jObject["forecasts"].Select(c => c["parts"][dayCycle[i]]["feels_like"].ToObject<string?>()).ToArray();
-                string?[] imageSource = jObject["forecasts"].Select(c => c["parts"][dayCycle[i]]["icon"].ToObject<string?>()).ToArray();
-                string?[] weatherDesc = jObject["forecasts"].Select(c => c["parts"][dayCycle[i]]["condition"].ToObject<string?>()).ToArray();
-                string?[] UVIndex = jObject["forecasts"].Select(c => c["parts"][dayCycle[i]]["uv_index"].ToObject<string?>()).ToArray();
-                string?[] MagneticField = jObject["forecasts"].Select(c => c["biomet"]["condition"].ToObject<string?>()).ToArray();
+                Weather weather = new Weather();
+                DateTime date = jObject["forecasts"][i]["date"].ToObject<DateTime>();
+                weather.Date = date;
 
-
-                for (int j = 0; j < maxTemp.Length; j++)
+                foreach (string c in dayCycle)
                 {
-                    Weather weather = new Weather();
-                    weather.Date = date[j];
-                    weather.MinTemperature = minTemp[j];
-                    weather.MaxTemperature = maxTemp[j];
-                    weather.Pressure = pressure[j];
-                    weather.Humidity = humidity[j];
-                    weather.WindSpeed = windSpeed[j];
-                    weather.FeelsLike = feelsLike[j];
-                    weather.WeatherImageSource = $"https://yastatic.net/weather/i/icons/funky/dark/{imageSource[j]}.svg";
-                    weather.WeatherDescription = weatherDesc[j];
-                    weather.UVIndex = UVIndex[j];
-                    weather.MagnecicField = MagneticField[j];
+                    string minTemp = jObject["forecasts"][i]["parts"][c]["temp_min"].ToObject<string>();
+                    string maxTemp = jObject["forecasts"][i]["parts"][c]["temp_max"].ToObject<string>();
+                    string pressure = jObject["forecasts"][i]["parts"][c]["pressure_mm"].ToObject<string>();
+                    string humidity = jObject["forecasts"][i]["parts"][c]["humidity"].ToObject<string>();
+                    string windSpeed = jObject["forecasts"][i]["parts"][c]["wind_speed"].ToObject<string>();
+                    string feelsLike = jObject["forecasts"][i]["parts"][c]["feels_like"].ToObject<string>();
+                    string imageSource = jObject["forecasts"][i]["parts"][c]["icon"].ToObject<string>();
+                    string weatherDesc = jObject["forecasts"][i]["parts"][c]["condition"].ToObject<string>();
 
+                    weather.MinTemperature = minTemp;
+                    weather.MaxTemperature = maxTemp;
+                    weather.Pressure = pressure;
+                    weather.Humidity = humidity;
+                    weather.WindSpeed = windSpeed;
+                    weather.FeelsLike = feelsLike;
+                    weather.WeatherImageSource = new Uri($"https://yastatic.net/weather/i/icons/funky/dark/{imageSource}.svg");
+                    weather.WeatherDescription = weatherDesc;
                     weatherSendClient.WeathersList.Add(weather);
                 }
             }
 
-            return Clients.Others.Send(weatherSendClient);
+            await Clients.Caller.Send(weatherSendClient.WeathersList);
+        }
+
+        public async Task ClientMessage(string message)
+        {
+            Debug.WriteLine(message);
         }
         protected override void Dispose(bool disposing)
         {

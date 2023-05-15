@@ -6,7 +6,7 @@
       xmlns:local="clr-namespace:WeatherClient.Pages"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="WeatherMainPage">
+      Title="WeatherMainPage" Loaded="Window_Loaded" Unloaded="Window_Closing">
 
     <Grid Background="White">
         <Label x:Name="lbDateDay" Foreground="Black" FontSize="36" Content="30" FontWeight="Bold" Height="61" Width="66" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10,10,0,0"/>

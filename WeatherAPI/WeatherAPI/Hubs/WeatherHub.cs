@@ -34,12 +34,10 @@ namespace WeatherAPI.Hubs
             int daysTemp = jObject["forecasts"].Count();
             for (int i = 0; i < daysTemp; i++)
             {
-                Weather weather = new Weather();
-                DateTime date = jObject["forecasts"][i]["date"].ToObject<DateTime>();
-                weather.Date = date;
-
                 foreach (string c in dayCycle)
                 {
+                    Weather weather = new Weather();
+                    DateOnly date = jObject["forecasts"][i]["date"].ToObject<DateOnly>();
                     string minTemp = jObject["forecasts"][i]["parts"][c]["temp_min"].ToObject<string>();
                     string maxTemp = jObject["forecasts"][i]["parts"][c]["temp_max"].ToObject<string>();
                     string pressure = jObject["forecasts"][i]["parts"][c]["pressure_mm"].ToObject<string>();
@@ -49,6 +47,7 @@ namespace WeatherAPI.Hubs
                     string imageSource = jObject["forecasts"][i]["parts"][c]["icon"].ToObject<string>();
                     string weatherDesc = jObject["forecasts"][i]["parts"][c]["condition"].ToObject<string>();
 
+                    weather.Date = date;
                     weather.MinTemperature = minTemp;
                     weather.MaxTemperature = maxTemp;
                     weather.Pressure = pressure;

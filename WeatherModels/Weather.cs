@@ -2,7 +2,7 @@
 {
     public class Weather
     {
-        public DateTime? Date { get; set; }
+        public DateOnly? Date { get; set; }
         public string? MaxTemperature { get; set; }
         public string? MinTemperature { get; set; }
         public Uri? WeatherImageSource { get; set; }

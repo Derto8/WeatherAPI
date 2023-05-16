@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WeatherClient.Classies;
 using WeatherModels;
 using WeatherSendClient;
 
@@ -43,18 +44,76 @@ namespace WeatherClient.Pages
 
         private void GetData(List<Weather> weatherData)
         {
-            this.weathersList = weatherData;
+             this.weathersList = weatherData;
         }
 
         private async void Forward(object sender, RoutedEventArgs e)
         {
-
+            DataToGUI(0);
         }
 
         private async void ConnectServer(object sender, RoutedEventArgs e)
         {
             HubConnection.On<List<Weather>>("Send", data => GetData(data));
             await HubConnection.SendAsync("SendWeatherMessage");
+        }
+
+        private void DataToGUI(int i)
+        {
+            //morning
+            Weather w = weathersList[i];
+            lbMorningT.Content = $"+{w.MinTemperature}°...{w.MaxTemperature}";
+            lbMorningText.Content = w.WeatherDescription.UpperFirstChar();
+            lbPressureMorning.Content = w.Pressure;
+            lbHumidityMorning.Content = w.Humidity;
+            lbWindSpeedMorning.Content = w.WindSpeed;
+            lbFeelsMorning.Content = w.FeelsLike;
+
+            //day
+            i = i + 1;
+            w = weathersList[i];
+            lbDayT.Content = $"+{w.MinTemperature}°...{w.MaxTemperature}";
+            lbDayText.Content = w.WeatherDescription.UpperFirstChar();
+            lbPressureDay.Content = w.Pressure;
+            lbHumidityDay.Content = w.Humidity;
+            lbWindSpeedDay.Content = w.WindSpeed;
+            lbFeelsDay.Content = w.FeelsLike;
+
+            //evening
+            i = i + 1;
+            w = weathersList[i]; 
+            lbEveningT.Content = $"+{w.MinTemperature}°...{w.MaxTemperature}";
+            lbEveningText.Content = w.WeatherDescription.UpperFirstChar();
+            lbPressureEvening.Content = w.Pressure;
+            lbHumidityEvening.Content = w.Humidity;
+            lbWindSpeedEvening.Content = w.WindSpeed;
+            lbFeelsEvening.Content = w.FeelsLike;
+
+            //night
+            i = i + 1;
+            w = weathersList[i];
+            lbNightT.Content = $"+{w.MinTemperature}°...{w.MaxTemperature}";
+            lbNightText.Content = w.WeatherDescription.UpperFirstChar();
+            lbPressureNight.Content = w.Pressure;
+            lbHumidityNight.Content = w.Humidity;
+            lbWindSpeedNight.Content = w.WindSpeed;
+            lbFeelsNight.Content = w.FeelsLike;
+
+            i = i + 1;
+            w = weathersList[i];
+
+
+        }
+
+        private string GetPicture(string wDesc)
+        {
+            if (wDesc == "overcast")
+                return "https://yastatic.net/weather/i/icons/funky/dark/ovc.svg";
+            if (wDesc == "light-rain")
+                return "https://yastatic.net/weather/i/icons/funky/dark/ovc_-ra.svg";
+            if (wDesc == "")
+                return "";
+            return "";
         }
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {

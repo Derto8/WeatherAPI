@@ -8,7 +8,7 @@ namespace WeatherClient.Classies
 {
     internal static class StringExtensions
     {
-        internal static string UpperFirstChar(this string input)
+        internal static string UpperFirstChar(this string? input)
         {
             if (string.IsNullOrEmpty(input))
             {

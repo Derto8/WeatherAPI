@@ -5,6 +5,7 @@ using WeatherAPI.Interfaces;
 using WeatherSendClient;
 using WeatherModels;
 using System.Collections.Generic;
+using WeatherAPI.DataClassies;
 
 namespace WeatherAPI.Hubs
 {
@@ -18,9 +19,12 @@ namespace WeatherAPI.Hubs
         }
 
 
-        public async Task SendWeatherMessage()
+        public async Task SendWeatherMessage(string lattitude, string longitude)
         {
-            apiUrl = new Uri(Configuration["UrlGetWeather"]);
+            int countSymbols = Configuration["UrlGetWeather"].IndexOf('&');
+            string urlUpi = Configuration["UrlGetWeather"].Insert(countSymbols, lattitude);
+
+            apiUrl = new Uri($"{urlUpi}{longitude}");
             HttpClient httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("X-Yandex-API-Key", Configuration["YandexKey"]);
             HttpResponseMessage? resp = await httpClient.GetAsync(apiUrl);
@@ -37,12 +41,13 @@ namespace WeatherAPI.Hubs
                 foreach (string c in dayCycle)
                 {
                     Weather weather = new Weather();
-                    DateOnly date = jObject["forecasts"][i]["date"].ToObject<DateOnly>();
+                    DateTime date = jObject["forecasts"][i]["date"].ToObject<DateTime>();
                     string minTemp = jObject["forecasts"][i]["parts"][c]["temp_min"].ToObject<string>();
                     string maxTemp = jObject["forecasts"][i]["parts"][c]["temp_max"].ToObject<string>();
                     string pressure = jObject["forecasts"][i]["parts"][c]["pressure_mm"].ToObject<string>();
                     string humidity = jObject["forecasts"][i]["parts"][c]["humidity"].ToObject<string>();
                     string windSpeed = jObject["forecasts"][i]["parts"][c]["wind_speed"].ToObject<string>();
+                    string windDir = jObject["forecasts"][i]["parts"][c]["wind_dir"].ToObject<string>();
                     string feelsLike = jObject["forecasts"][i]["parts"][c]["feels_like"].ToObject<string>();
                     string imageSource = jObject["forecasts"][i]["parts"][c]["icon"].ToObject<string>();
                     string weatherDesc = jObject["forecasts"][i]["parts"][c]["condition"].ToObject<string>();
@@ -53,6 +58,7 @@ namespace WeatherAPI.Hubs
                     weather.Pressure = pressure;
                     weather.Humidity = humidity;
                     weather.WindSpeed = windSpeed;
+                    weather.WindDir = windDir;
                     weather.FeelsLike = feelsLike;
                     weather.WeatherImageSource = new Uri($"https://yastatic.net/weather/i/icons/funky/dark/{imageSource}.svg");
                     weather.WeatherDescription = weatherDesc;

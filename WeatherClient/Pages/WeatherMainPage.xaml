@@ -10,7 +10,7 @@
 
     <Grid Background="White">
         <Label x:Name="lbDateDay" Foreground="Black" FontSize="36" Content="30" FontWeight="Bold" Height="61" Width="66" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10,10,0,0"/>
-        <Label Foreground="#bfb4b4" x:Name="lbDateMounth" Content="May,&#xD;&#xA;Today" Height="56" Margin="81,10,0,0" FontSize="16" Width="123" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <Label Foreground="#bfb4b4" x:Name="lbDateMounthYear" Content="May,&#xD;&#xA;Today" Height="56" Margin="81,10,0,0" FontSize="16" Width="123" VerticalAlignment="Top" HorizontalAlignment="Left"/>
         <Label Foreground="#bfb4b4" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Pressure&#xD;&#xA;mm HG" Height="56" Margin="0,12,289,0" FontSize="16" Width="82" VerticalAlignment="Top" HorizontalAlignment="Right"/>
         <Button Margin="273,15,444,389" Background="White" x:Name="buttonConnect" BorderBrush="Black" BorderThickness="3" Click="ConnectServer" Content="Запустить" Foreground="#bfb4b4" FontSize="14"/>
         <Button Margin="209,15,532,389" Background="White" BorderBrush="Black" BorderThickness="3" Click="Back" Content="ᐊ" Foreground="#bfb4b4" FontSize="24"/>
@@ -27,10 +27,10 @@
                 <Label Content="+18°...+9" FontSize="18" FontWeight="Bold" x:Name="lbNightT" Height="31" Margin="5,255,5,0" Width="NaN" VerticalAlignment="Top"/>
             </Grid>
             <Grid Height="NaN" Margin="130,10,377,10">
-                <Image Height="57" Margin="10,0,0,227" x:Name="imgMorning" Source="C:\Users\Николай\Desktop\WeatherAPIClient\WeatherClient\bin\Debug\net6.0-windows\Weather\MainlyCloudy.PNG" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="79"/>
-                <Image Height="57" Margin="11,0,0,153" x:Name="imgDay" Source="C:\Users\Николай\Desktop\WeatherAPIClient\WeatherClient\bin\Debug\net6.0-windows\Weather\SunnyCloud.PNG" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="79"/>
-                <Image Height="57" Margin="11,0,0,91" x:Name="imgEvening" Source="C:\Users\Николай\Desktop\WeatherAPIClient\WeatherClient\bin\Debug\net6.0-windows\Weather\SunnyCloud.PNG" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="79"/>
-                <Image Height="57" Margin="12,0,0,19" x:Name="imgNight" Source="C:\Users\Николай\Desktop\WeatherAPIClient\WeatherClient\bin\Debug\net6.0-windows\Weather\MainlyCloudy.PNG" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="79"/>
+                <Image Height="57" Margin="10,0,0,227" x:Name="imgMorning" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="79"/>
+                <Image Height="57" Margin="11,0,0,153" x:Name="imgDay" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="79"/>
+                <Image Height="57" Margin="11,0,0,91" x:Name="imgEvening" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="79"/>
+                <Image Height="57" Margin="12,0,0,19" x:Name="imgNight" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="79"/>
                 <Label Height="40" Margin="99,0,0,236" x:Name="lbMorningText" Width="166" VerticalAlignment="Bottom" Content="Mainly cloudy" Foreground="#bfb4b4" FontSize="18" HorizontalAlignment="Left" />
                 <Label Height="40" Margin="97,0,0,166" Width="166" x:Name="lbDayText" VerticalAlignment="Bottom" Content="Partly cloudy" Foreground="#bfb4b4" FontSize="18" HorizontalAlignment="Left" />
                 <Label Height="40" Margin="97,0,0,104" Width="166" x:Name="lbEveningText" VerticalAlignment="Bottom" Content="Partly cloudy" Foreground="#bfb4b4" FontSize="18" HorizontalAlignment="Left" />
@@ -59,8 +59,8 @@
         <Label Foreground="#bfb4b4" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Wind m/s" Height="56" Margin="0,10,107,0" FontSize="16" Width="88" VerticalAlignment="Top" HorizontalAlignment="Right"/>
         <Label Foreground="#bfb4b4" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Feels Like" Height="56" Margin="0,10,20,0" FontSize="16" Width="82" VerticalAlignment="Top" HorizontalAlignment="Right"/>
         <Grid Height="2" Margin="10,397,10,0" Background="#e0dede" Width="NaN" VerticalAlignment="Top"/>
-        <Label FontSize="16" Foreground="#bfb4b4" x:Name="lbUVIndex" Content="UV Index 5, average" Height="36" Margin="20,404,0,0" Width="171" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-        <Label FontSize="16" Foreground="#bfb4b4" x:Name="lbMagnetic" Content="Magnetic field Quiet " Height="36" Margin="229,404,0,0" Width="191" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <TextBox Margin="147,404,20,0" FontSize="24" Text="Пермь" x:Name="tbCity" Foreground="#bfb4b4" Height="36" VerticalAlignment="Top"/>
+        <Label FontSize="16" Foreground="#bfb4b4" x:Name="lbUVIndex" Content="Enter city name:" Height="36" Margin="20,404,0,0" Width="122" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         <Button Margin="361,15,380,389" Background="White" BorderBrush="Black" BorderThickness="3" Click="Forward" Content="ᐅ" Foreground="#bfb4b4" FontSize="24"/>
     </Grid>
 </Page>

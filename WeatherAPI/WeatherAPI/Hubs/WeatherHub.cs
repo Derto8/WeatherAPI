@@ -5,7 +5,6 @@ using WeatherAPI.Interfaces;
 using WeatherSendClient;
 using WeatherModels;
 using System.Collections.Generic;
-using WeatherAPI.DataClassies;
 
 namespace WeatherAPI.Hubs
 {

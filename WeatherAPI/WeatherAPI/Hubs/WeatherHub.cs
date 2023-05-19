@@ -5,6 +5,8 @@ using WeatherAPI.Interfaces;
 using WeatherSendClient;
 using WeatherModels;
 using System.Collections.Generic;
+using WeatherAPI.Repository;
+using WeatherAPI.DataBaseContext;
 
 namespace WeatherAPI.Hubs
 {
@@ -12,14 +14,19 @@ namespace WeatherAPI.Hubs
     {
         private readonly IConfiguration Configuration;
         private Uri apiUrl;
-        public WeatherHub(IConfiguration configuration)
+        private WeatherContext context;
+        public WeatherHub(IConfiguration configuration, WeatherContext context)
         {
             Configuration = configuration;
+            this.context = context;
         }
 
 
         public async Task SendWeatherMessage(string lattitude, string longitude)
         {
+            WeatherRepository<Weather> weatherRepo = new WeatherRepository<Weather>(context);
+
+
             int countSymbols = Configuration["UrlGetWeather"].IndexOf('&');
             string urlUpi = Configuration["UrlGetWeather"].Insert(countSymbols, lattitude);
 

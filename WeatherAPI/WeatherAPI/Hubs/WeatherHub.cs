@@ -15,30 +15,98 @@ namespace WeatherAPI.Hubs
         private readonly IConfiguration Configuration;
         private Uri apiUrl;
         private WeatherContext context;
+        private WeatherRepository weatherRepository;
         public WeatherHub(IConfiguration configuration, WeatherContext context)
         {
             Configuration = configuration;
             this.context = context;
         }
 
-        public async Task GetWeather(string city, string lattitude, string longitude)
+        public async Task WeatherMethod(string city, string lattitude, string longitude)
         {
-            WeatherRepository weatherRepository = new WeatherRepository(context);
-            if(await weatherRepository.FindCity(city))
+            weatherRepository = new WeatherRepository(context);
+            if (await weatherRepository.FindCity(city))
             {
-                // прописать код, который берёт из БД данные и отправляет юзеру
+                await GetWeatherFromDB(city);
             }
             else
             {
-                await SendWeatherMessage(lattitude, longitude);
+                await AddWeather(city, lattitude, longitude);
             }
         }
 
+        public async Task SendWeatherClient(List<Weather> weathers)
+        {
+            await Clients.Caller.Send(weathers);
+        }
 
-        public async Task SendWeatherMessage(string lattitude, string longitude)
+        public async Task AddWeather(string city, string lattitude, string longitude)
         {
             //WeatherRepository<Weather> weatherRepo = new WeatherRepository<Weather>(context);
 
+            //int countSymbols = Configuration["UrlGetWeather"].IndexOf('&');
+            //string urlUpi = Configuration["UrlGetWeather"].Insert(countSymbols, lattitude);
+
+            //apiUrl = new Uri($"{urlUpi}{longitude}");
+            //HttpClient httpClient = new HttpClient();
+            //httpClient.DefaultRequestHeaders.Add("X-Yandex-API-Key", Configuration["YandexKey"]);
+            //HttpResponseMessage? resp = await httpClient.GetAsync(apiUrl);
+            //string? json = await resp.Content.ReadAsStringAsync();
+            //JToken jObject = JObject.Parse(json);
+
+
+            //string[] dayCycle = new string[] { "morning", "day", "evening", "night" };
+            //WeatherData weatherSendClient = new WeatherData();
+
+            //int daysTemp = jObject["forecasts"].Count();
+            //for (int i = 0; i < daysTemp; i++)
+            //{
+            //    foreach (string c in dayCycle)
+            //    {
+            //        Weather weather = new Weather();
+            //        DateTime date = jObject["forecasts"][i]["date"].ToObject<DateTime>();
+            //        string minTemp = jObject["forecasts"][i]["parts"][c]["temp_min"].ToObject<string>();
+            //        string maxTemp = jObject["forecasts"][i]["parts"][c]["temp_max"].ToObject<string>();
+            //        string pressure = jObject["forecasts"][i]["parts"][c]["pressure_mm"].ToObject<string>();
+            //        string humidity = jObject["forecasts"][i]["parts"][c]["humidity"].ToObject<string>();
+            //        string windSpeed = jObject["forecasts"][i]["parts"][c]["wind_speed"].ToObject<string>();
+            //        string windDir = jObject["forecasts"][i]["parts"][c]["wind_dir"].ToObject<string>();
+            //        string feelsLike = jObject["forecasts"][i]["parts"][c]["feels_like"].ToObject<string>();
+            //        string imageSource = jObject["forecasts"][i]["parts"][c]["icon"].ToObject<string>();
+            //        string weatherDesc = jObject["forecasts"][i]["parts"][c]["condition"].ToObject<string>();
+
+            //        weather.City = city;
+            //        weather.Date = date;
+            //        weather.MinTemperature = minTemp;
+            //        weather.MaxTemperature = maxTemp;
+            //        weather.Pressure = pressure;
+            //        weather.Humidity = humidity;
+            //        weather.WindSpeed = windSpeed;
+            //        weather.WindDir = windDir;
+            //        weather.FeelsLike = feelsLike;
+            //        weather.WeatherImageSource = new Uri($"https://yastatic.net/weather/i/icons/funky/dark/{imageSource}.svg");
+            //        weather.WeatherDescription = weatherDesc;
+            //        weatherSendClient.WeathersList.Add(weather);
+            //        await weatherRepository.Create(weather);
+            //    }
+            //}
+            WeatherData weatherSendClient = await GetWeather(city, lattitude, longitude);
+            foreach(Weather weather in weatherSendClient.WeathersList)
+            {
+                await weatherRepository.Create(weather);
+            }
+            await SendWeatherClient(weatherSendClient.WeathersList);
+        }
+
+        public async Task GetWeatherFromDB(string city)
+        {
+            List<Weather> weathers = await weatherRepository.Get(city);
+            await SendWeatherClient(weathers);
+        }
+
+
+        public async Task<WeatherData> GetWeather(string city, string lattitude, string longitude)
+        {
             int countSymbols = Configuration["UrlGetWeather"].IndexOf('&');
             string urlUpi = Configuration["UrlGetWeather"].Insert(countSymbols, lattitude);
 
@@ -70,6 +138,7 @@ namespace WeatherAPI.Hubs
                     string imageSource = jObject["forecasts"][i]["parts"][c]["icon"].ToObject<string>();
                     string weatherDesc = jObject["forecasts"][i]["parts"][c]["condition"].ToObject<string>();
 
+                    weather.City = city;
                     weather.Date = date;
                     weather.MinTemperature = minTemp;
                     weather.MaxTemperature = maxTemp;
@@ -83,8 +152,7 @@ namespace WeatherAPI.Hubs
                     weatherSendClient.WeathersList.Add(weather);
                 }
             }
-
-            await Clients.Caller.Send(weatherSendClient.WeathersList);
+            return weatherSendClient;
         }
 
         public async Task ClientMessage(string message)

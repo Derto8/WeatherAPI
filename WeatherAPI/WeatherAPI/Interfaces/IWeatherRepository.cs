@@ -4,8 +4,8 @@ namespace WeatherAPI.Interfaces
 {
     public interface IWeatherRepository
     {
-        void Create(Weather entity);
-        List<Weather> Get();
+        Task Create(Weather entity);
+        Task<List<Weather>> Get(string city);
         void Update(Weather item);
         Task<bool> FindCity(string city);
     }

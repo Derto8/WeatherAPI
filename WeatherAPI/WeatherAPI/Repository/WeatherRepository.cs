@@ -13,7 +13,7 @@ namespace WeatherAPI.Repository
             Context = dbContext;
             DBSet = Context.Set<Weather>();
         }
-        public async void Create(Weather entity)
+        public async Task Create(Weather entity)
         {
             await DBSet.AddAsync(entity);
             await Context.SaveChangesAsync();
@@ -21,15 +21,16 @@ namespace WeatherAPI.Repository
 
         public async Task<bool> FindCity(string city)
         {
-            Weather weather = await DBSet.Where(c => c.City == city).FirstOrDefaultAsync();
+            Weather? weather = await DBSet.Where(c => c.City.Equals(city)).FirstOrDefaultAsync();
             if(weather != null)
                 return true;
             return false;
         }
 
-        public List<Weather> Get()
+        public async Task<List<Weather>> Get(string city)
         {
-            throw new NotImplementedException();
+            List<Weather> weatherList = await DBSet.Where(c => c.City.Equals(city)).ToListAsync();
+            return weatherList;
         }
 
         public async void Update(Weather item)

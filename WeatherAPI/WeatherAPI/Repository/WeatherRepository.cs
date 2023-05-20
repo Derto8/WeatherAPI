@@ -4,27 +4,35 @@ using WeatherModels;
 
 namespace WeatherAPI.Repository
 {
-    public class WeatherRepository<TEntity> : IWeatherRepository<TEntity> where TEntity : class
+    public class WeatherRepository : IWeatherRepository
     {
         private DbContext Context;
-        private DbSet<TEntity> DBSet;
+        private DbSet<Weather> DBSet;
         public WeatherRepository(DbContext dbContext)
         {
             Context = dbContext;
-            DBSet = Context.Set<TEntity>();
+            DBSet = Context.Set<Weather>();
         }
-        public async void Create(TEntity entity)
+        public async void Create(Weather entity)
         {
             await DBSet.AddAsync(entity);
             await Context.SaveChangesAsync();
         }
 
-        public IEnumerable<TEntity> Get()
+        public async Task<bool> FindCity(string city)
+        {
+            Weather weather = await DBSet.Where(c => c.City == city).FirstOrDefaultAsync();
+            if(weather != null)
+                return true;
+            return false;
+        }
+
+        public List<Weather> Get()
         {
             throw new NotImplementedException();
         }
 
-        public async void Update(TEntity item)
+        public async void Update(Weather item)
         {
             Context.Entry(item).State = EntityState.Modified;
             await Context.SaveChangesAsync();

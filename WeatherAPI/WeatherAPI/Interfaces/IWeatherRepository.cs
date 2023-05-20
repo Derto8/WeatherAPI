@@ -2,10 +2,11 @@
 
 namespace WeatherAPI.Interfaces
 {
-    public interface IWeatherRepository<TEntity> where TEntity : class
+    public interface IWeatherRepository
     {
-        void Create(TEntity entity);
-        IEnumerable<TEntity> Get();
-        void Update(TEntity item);
+        void Create(Weather entity);
+        List<Weather> Get();
+        void Update(Weather item);
+        Task<bool> FindCity(string city);
     }
 }

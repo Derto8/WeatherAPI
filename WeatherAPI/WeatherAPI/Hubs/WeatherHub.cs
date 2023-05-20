@@ -21,11 +21,23 @@ namespace WeatherAPI.Hubs
             this.context = context;
         }
 
+        public async Task GetWeather(string city, string lattitude, string longitude)
+        {
+            WeatherRepository weatherRepository = new WeatherRepository(context);
+            if(await weatherRepository.FindCity(city))
+            {
+                // прописать код, который берёт из БД данные и отправляет юзеру
+            }
+            else
+            {
+                await SendWeatherMessage(lattitude, longitude);
+            }
+        }
+
 
         public async Task SendWeatherMessage(string lattitude, string longitude)
         {
-            WeatherRepository<Weather> weatherRepo = new WeatherRepository<Weather>(context);
-
+            //WeatherRepository<Weather> weatherRepo = new WeatherRepository<Weather>(context);
 
             int countSymbols = Configuration["UrlGetWeather"].IndexOf('&');
             string urlUpi = Configuration["UrlGetWeather"].Insert(countSymbols, lattitude);

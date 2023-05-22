@@ -6,7 +6,8 @@ namespace WeatherAPI.Interfaces
     {
         Task Create(Weather entity);
         Task<List<Weather>> Get(string city);
-        void Update(Weather item);
+        Task Update(Weather weatherDataOld, Weather weatherDataNew);
         Task<bool> FindCity(string city);
+        Task<List<Weather>> GetAllWeathers();
     }
 }

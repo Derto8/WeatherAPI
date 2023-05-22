@@ -15,7 +15,10 @@ namespace WeatherAPI.Repository
         }
         public async Task Create(Weather entity)
         {
-            await DBSet.AddAsync(entity);
+            //Context.Entry(entity).State = EntityState.Added;
+            Weather newWeather = entity;
+
+            await DBSet.AddAsync(newWeather);
             await Context.SaveChangesAsync();
         }
 
@@ -33,10 +36,38 @@ namespace WeatherAPI.Repository
             return weatherList;
         }
 
-        public async void Update(Weather item)
+        public async Task<List<Weather>> GetAllWeathers()
         {
-            Context.Entry(item).State = EntityState.Modified;
+            List<Weather> weathers = await DBSet.ToListAsync();
+            return weathers;
+        }
+
+        public async Task Update(Weather weatherDataOld, Weather weatherDataNew)
+        {
+            Context.Entry(weatherDataOld).State = EntityState.Modified;
+            Weather? w = await DBSet.Where(c => c.Id == weatherDataOld.Id).FirstOrDefaultAsync();
+            w.City = weatherDataNew.City;
+            w.Lattitude = weatherDataNew.Lattitude;
+            w.Longitude = weatherDataNew.Longitude;
+            w.Date = weatherDataNew.Date;
+            w.MaxTemperature = weatherDataNew.MaxTemperature;
+            w.MinTemperature = weatherDataNew.MinTemperature;
+            w.WeatherImageSource = weatherDataNew.WeatherImageSource;
+            w.WeatherDescription = weatherDataNew.WeatherDescription;
+            w.Pressure = weatherDataNew.Pressure;
+            w.Humidity = weatherDataNew.Humidity;
+            w.WindSpeed = weatherDataNew.WindSpeed;
+            w.WindDir = weatherDataNew.WindDir;
+            w.FeelsLike = weatherDataNew.FeelsLike;
             await Context.SaveChangesAsync();
+        }
+
+        public void Upd(Weather weatherDataOld, Weather weatherDataNew)
+        {
+            Weather? newWeather = DBSet.Where(c => c == weatherDataOld).FirstOrDefault();
+
+            newWeather = weatherDataNew;
+            Context.SaveChanges();
         }
     }
 }

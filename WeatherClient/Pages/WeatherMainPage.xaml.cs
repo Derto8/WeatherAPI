@@ -90,7 +90,7 @@ namespace WeatherClient.Pages
                     if(weathersList is not null)
                         weathersList.Clear();
                     HubConnection.On<List<Weather>>("Send", data => GetData(data));
-                    await HubConnection.SendAsync("SendWeatherMessage", lattitude, longitude);
+                    await HubConnection.SendAsync("WeatherMethod", city, lattitude, longitude);
                     while (weathersList is null || weathersList.Count == 0)
                     {
                         if (weathersList is not null && weathersList.Count != 0)
@@ -103,7 +103,7 @@ namespace WeatherClient.Pages
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Попробуйте подключиться позже" + HubConnection.State);
+                    MessageBox.Show("Попробуйте подключиться позже " + HubConnection.State);
                 }
             }
             else
@@ -232,9 +232,9 @@ namespace WeatherClient.Pages
                 await HubConnection.SendAsync("ClientMessage", $"Подключился пользователь {HubConnection.ConnectionId}");
 
             }
-            catch (Exception ex)
+            catch
             {
-                await HubConnection.SendAsync("ClientMessage", $"Пользователь {HubConnection.ConnectionId} не смог подключиться: {ex.Message}");
+                MessageBox.Show("Невозможно подключиться к серверу");
             }
         }
 

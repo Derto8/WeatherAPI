@@ -9,7 +9,6 @@ namespace WeatherAPI.DataBaseContext
         {
             Database.EnsureCreated();
         }
-
         internal DbSet<Weather> WeatherTable { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WeatherModels;
+using WeatherSendClient;
 
 namespace WeatherAPI.DataBaseContext
 {
@@ -10,5 +11,7 @@ namespace WeatherAPI.DataBaseContext
             Database.EnsureCreated();
         }
         internal DbSet<Weather> WeatherTable { get; set; }
+        internal DbSet<UserData> UsersData { get; set; }
+
     }
 }

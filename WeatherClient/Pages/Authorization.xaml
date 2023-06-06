@@ -15,10 +15,11 @@
             <Grid Margin="8,8,8,8">
 
                 <Label Content="Enter your login" Foreground="#bfb4b4"  FontSize="16" Margin="33,31,107,0" Height="37" VerticalAlignment="Top"/>
-                <TextBox x:Name="tbLogin" Margin="33,73,33,0" Foreground="#bfb4b4" Height="37" VerticalAlignment="Top"/>
-                <Button Click="AuthorizationServer" Content="Authorization" Foreground="#bfb4b4" FontSize="20" Background="White" Margin="86,227,86,24"/>
-                <TextBox x:Name="tbPassword" Margin="33,150,33,0" Foreground="#bfb4b4" Height="38" VerticalAlignment="Top"/>
+                <TextBox FontSize="26" x:Name="tbLogin" Margin="33,73,33,0" Foreground="#bfb4b4" Height="37" VerticalAlignment="Top"/>
+                <Button Click="AuthorizationServer" Content="Authorization" Foreground="#bfb4b4" FontSize="20" Background="White" Margin="0,193,0,0" HorizontalAlignment="Center" Width="192" Height="36" VerticalAlignment="Top"/>
+                <TextBox FontSize="26" x:Name="tbPassword" Margin="33,150,33,0" Foreground="#bfb4b4" Height="38" VerticalAlignment="Top"/>
                 <Label Content="Enter your password" Foreground="#bfb4b4"  FontSize="16" Margin="33,110,107,0" Height="37" VerticalAlignment="Top"/>
+                <Button Click="Registration" Content="Registration" Foreground="#bfb4b4" FontSize="20" Background="White" Margin="0,0,0,30" HorizontalAlignment="Center" Width="192" Height="36" VerticalAlignment="Bottom"/>
             </Grid>
         </Border>
     </Grid>

@@ -15,9 +15,7 @@ namespace WeatherAPI.Repository
         }
         public async Task Create(Weather entity)
         {
-            //Context.Entry(entity).State = EntityState.Added;
             Weather newWeather = entity;
-
             await DBSet.AddAsync(newWeather);
             await Context.SaveChangesAsync();
         }

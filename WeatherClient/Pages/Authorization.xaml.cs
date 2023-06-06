@@ -30,12 +30,14 @@ namespace WeatherClient.Pages
     {
         private MainWindow mainWindow;
         private HubConnection HubConnection;
-        private Uri Url;
+        private Uri UrlAuthorizationServer;
+        private Uri UrlRegistrationServer;
         public Authorization(MainWindow mainWindow)
         {
             InitializeComponent();
             this.mainWindow = mainWindow;
-            Url = new Uri(ConfigurationManager.AppSettings["ServerAuthorizationUrl"]);
+            UrlAuthorizationServer = new Uri(ConfigurationManager.AppSettings["ServerAuthorizationUrl"]);
+            UrlRegistrationServer = new Uri(ConfigurationManager.AppSettings["ServerRegistrationUrl"]);
             this.mainWindow = mainWindow;
             //HubConnection = new HubConnectionBuilder()
             //    .WithUrl(Url)
@@ -53,7 +55,9 @@ namespace WeatherClient.Pages
                     HttpClient httpClient = new HttpClient();
                     string json = JsonSerializer.Serialize(userData);
                     StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
-                    using var response = await httpClient.PostAsync(Url.ToString(), content);
+                    using var response = await httpClient.PostAsync(UrlAuthorizationServer.ToString(), content);
+                    if (response.StatusCode == HttpStatusCode.NoContent)
+                        MessageBox.Show("Проблема с подключением к базе данных.\nПопробуйте позже");
                     if (response.StatusCode == HttpStatusCode.Unauthorized)
                         MessageBox.Show("Такого пользователя не существует");
                     if(response.StatusCode == HttpStatusCode.OK)
@@ -61,7 +65,34 @@ namespace WeatherClient.Pages
                         string responseText = await response.Content.ReadAsStringAsync();
                         JToken jObject = JObject.Parse(responseText);
                         UserToken.AccessToken = jObject["access_token"].ToString();
-                        MessageBox.Show(UserToken.AccessToken);
+                        mainWindow.OpenPage(MainWindow.pages.weather);
+                    }
+                }
+                else MessageBox.Show("Enter your password");
+            }
+            else MessageBox.Show("Enter your login");
+        }
+
+        private async void Registration(object sender, RoutedEventArgs e)
+        {
+            if (tbLogin.Text != "")
+            {
+                if (tbPassword.Text != "")
+                {
+                    UserData userData = new UserData() { Login = tbLogin.Text, Password = tbPassword.Text };
+                    HttpClient httpClient = new HttpClient();
+                    string json = JsonSerializer.Serialize(userData);
+                    StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var response = await httpClient.PostAsync(UrlRegistrationServer.ToString(), content);
+                    if (response.StatusCode == HttpStatusCode.NoContent)
+                        MessageBox.Show("Проблема с подключением к базе данных.\nПопробуйте позже");
+                    if (response.StatusCode == HttpStatusCode.Conflict)
+                        MessageBox.Show("Данный пользователь уже существует в бд");
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        string responseText = await response.Content.ReadAsStringAsync();
+                        JToken jObject = JObject.Parse(responseText);
+                        UserToken.AccessToken = jObject["access_token"].ToString();
                         mainWindow.OpenPage(MainWindow.pages.weather);
                     }
                 }

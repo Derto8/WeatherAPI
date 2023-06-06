@@ -19,6 +19,7 @@ namespace WeatherAPI.Services
             Configuration = configuration;
             this.serviceScopeFactory = serviceScopeFactory;
         }
+        //обновление погоды раз в час
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while(!stoppingToken.IsCancellationRequested)
@@ -42,16 +43,16 @@ namespace WeatherAPI.Services
                         List<string> lattitude = weathers.Select(c => c.Lattitude).Distinct().ToList();
                         List<string> longitude = weathers.Select(c => c.Longitude).Distinct().ToList();
 
-                        List<List<Weather>> a = new List<List<Weather>>();
+                        List<List<Weather>> allWeathers = new List<List<Weather>>();
 
 
                         foreach (Weather weather in weathersDistinctCity)
                         {
-                            a.Add(await GetWeather(weather.City, weather.Lattitude, weather.Longitude));
+                            allWeathers.Add(await GetWeather(weather.City, weather.Lattitude, weather.Longitude));
                         }
 
                         int i = 0;
-                        foreach (List<Weather> listWeather in a)
+                        foreach (List<Weather> listWeather in allWeathers)
                         {
                             foreach (Weather weather in listWeather)
                             {

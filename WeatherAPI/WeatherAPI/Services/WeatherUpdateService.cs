@@ -17,8 +17,6 @@ namespace WeatherAPI.Services
         public WeatherUpdateService(IConfiguration configuration, IServiceScopeFactory serviceScopeFactory)
         {
             Configuration = configuration;
-            //this.context = context;
-            //weatherRepository = new WeatherRepository(context);
             this.serviceScopeFactory = serviceScopeFactory;
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -62,7 +60,7 @@ namespace WeatherAPI.Services
                             }
                         }
                         Debug.WriteLine("Произошло обновление погоды в базе даных");
-                        await Task.Delay(10000);
+                        await Task.Delay(3600000);
                     }
                 }
                 catch(Exception ex)
@@ -71,48 +69,6 @@ namespace WeatherAPI.Services
                     await Task.CompletedTask;
                 }
             }
-
-
-            //using (var scope = serviceScopeFactory.CreateScope())
-            //{
-            //    WeatherContext? db = scope.ServiceProvider.GetRequiredService<WeatherContext>();
-            //    if (db != null)
-            //        weatherRepository = new WeatherRepository(db);
-            //    else
-            //    {
-            //        Debug.WriteLine("Не удалось получить базу данных");
-            //        await Task.CompletedTask;
-            //    }
-            //    while (!stoppingToken.IsCancellationRequested)
-            //    {
-            //        List<Weather> weathers = await weatherRepository.GetAllWeathers();
-            //        List<Weather> weathersDistinctCity = weathers.DistinctBy(c => c.City).ToList();
-            //        List<string> cities = weathers.Select(c => c.City).Distinct().ToList();
-            //        List<string> lattitude = weathers.Select(c => c.Lattitude).Distinct().ToList();
-            //        List<string> longitude = weathers.Select(c => c.Longitude).Distinct().ToList();
-
-            //        List<List<Weather>> a = new List<List<Weather>>();
-
-
-            //        foreach (Weather weather in weathersDistinctCity)
-            //        {
-            //            a.Add(await GetWeather(weather.City, weather.Lattitude, weather.Longitude));
-            //        }
-
-            //        int i = 0;
-            //        foreach (List<Weather> listWeather in a)
-            //        {
-            //            foreach (Weather weather in listWeather)
-            //            {
-            //                await weatherRepository.Update(weathers[i], weather);
-            //                i++;
-            //            }
-            //        }
-            //        Debug.WriteLine("Произошло обновление погоды в базе даных");
-            //        await Task.Delay(3600000);
-            //    }
-            //}
-            //await Task.CompletedTask;
         }
 
         private async Task<List<Weather>> GetWeather(string city, string lattitude, string longitude)

@@ -45,7 +45,7 @@ namespace WeatherAPI.Repository
         public async Task Update(Weather weatherDataOld, Weather weatherDataNew)
         {
             Context.Entry(weatherDataOld).State = EntityState.Modified;
-            Weather? w = await DBSet.Where(c => c.Id == weatherDataOld.Id).FirstOrDefaultAsync();
+            Weather w = await DBSet.Where(c => c.Id == weatherDataOld.Id).FirstOrDefaultAsync();
             w.City = weatherDataNew.City;
             w.Lattitude = weatherDataNew.Lattitude;
             w.Longitude = weatherDataNew.Longitude;
@@ -60,14 +60,6 @@ namespace WeatherAPI.Repository
             w.WindDir = weatherDataNew.WindDir;
             w.FeelsLike = weatherDataNew.FeelsLike;
             await Context.SaveChangesAsync();
-        }
-
-        public void Upd(Weather weatherDataOld, Weather weatherDataNew)
-        {
-            Weather? newWeather = DBSet.Where(c => c == weatherDataOld).FirstOrDefault();
-
-            newWeather = weatherDataNew;
-            Context.SaveChanges();
         }
     }
 }

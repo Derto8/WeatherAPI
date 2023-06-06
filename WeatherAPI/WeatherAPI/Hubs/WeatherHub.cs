@@ -9,6 +9,7 @@ using WeatherAPI.Repository;
 using WeatherAPI.DataBaseContext;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WeatherAPI.Hubs
 {
@@ -24,6 +25,7 @@ namespace WeatherAPI.Hubs
             this.context = context;
         }
 
+        [Authorize]
         public async Task WeatherMethod(string city, string lattitude, string longitude)
         {
             weatherRepository = new WeatherRepository(context);
@@ -41,44 +43,6 @@ namespace WeatherAPI.Hubs
         public async Task SendWeatherClient(List<Weather> weathers)
         {
             await Clients.Caller.Send(weathers);
-        }
-
-        public async Task UpdateWeather()
-        {
-            List<Weather> weathers = await weatherRepository.GetAllWeathers();
-            List<Weather> weathersDistinctCity = weathers.DistinctBy(c => c.City).ToList();
-            List<string> cities = weathers.Select(c => c.City).Distinct().ToList();
-            List<string> lattitude = weathers.Select(c => c.Lattitude).Distinct().ToList();
-            List<string> longitude = weathers.Select(c => c.Longitude).Distinct().ToList();
-
-            List<List<Weather>> a = new List<List<Weather>>();
-
-            foreach(Weather weather in weathersDistinctCity)
-            {
-                a.Add(await GetWeather(weather.City, weather.Lattitude, weather.Longitude));
-            }
-
-            foreach(List<Weather> listWeather in a)
-            {
-                foreach(Weather weather in listWeather)
-                {
-                    await weatherRepository.Update(weathers[0], weather);
-                }
-            }
-
-            //for (int i = 0; i < weathers.Count; i++)
-            //{
-            //    List<Weather> newWeather = await GetWeather(cities[i], lattitude[i], longitude[i]);
-            //  //  await weatherRepository.Update()
-            //}
-
-            //int i = 0;
-            //foreach(Weather weather in weathers)
-            //{
-            //    List<Weather> newWeather = await GetWeather(weather.City, weather.Lattitude, weather.Longitude);
-            //    await weatherRepository.Update(weather, newWeather[i]);
-            //    i++;
-            //}
         }
 
         public async Task AddWeather(string city, string lattitude, string longitude)

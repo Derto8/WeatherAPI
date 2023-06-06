@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Win32.SafeHandles;
 using Newtonsoft.Json.Linq;
 using Svg;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -37,14 +39,19 @@ namespace WeatherClient.Pages
         private BrushConverter bc = new BrushConverter();
         private HubConnection? HubConnection;
         private List<Weather> weathersList;
-        private string Url = "http://localhost:5213/weather";
+        private Uri Url;
         private int I = 0;
         public WeatherMainPage(MainWindow mainWindow)
         {
             InitializeComponent();
+            Url = new Uri(ConfigurationManager.AppSettings["GetWeatherUrl"]);
             this.mainWindow = mainWindow;
             HubConnection = new HubConnectionBuilder()
-                .WithUrl(Url)
+                .WithUrl(Url, options =>
+                {
+                    options.AccessTokenProvider = () => Task.FromResult(UserToken.AccessToken);
+                })
+                .WithAutomaticReconnect()
                 .Build();
         }
 
@@ -54,7 +61,7 @@ namespace WeatherClient.Pages
              this.weathersList = weatherData;
         }
 
-        private async void Forward(object sender, RoutedEventArgs e)
+        private void Forward(object sender, RoutedEventArgs e)
         {
             if (weathersList is not null)
             {
@@ -119,7 +126,10 @@ namespace WeatherClient.Pages
             for (int i = 0; i <= mas.Length; i++)
             {
                 if (m == i)
+                {
                     result = mas[i - 1];
+                    break;
+                }
             }
             return result;
         }

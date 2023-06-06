@@ -23,11 +23,12 @@ namespace WeatherClient
         public MainWindow()
         {
             InitializeComponent();
-            OpenPage(pages.weather);
+            OpenPage(pages.auth);
         }
 
         public enum pages
         {
+            auth,
             weather
         }
 
@@ -35,6 +36,8 @@ namespace WeatherClient
         {
             if (page == pages.weather)
                 frame.Navigate(new Pages.WeatherMainPage(this));
+            if (page == pages.auth)
+                frame.Navigate(new Pages.Authorization(this));
         }
     }
 }

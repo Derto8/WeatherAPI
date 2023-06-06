@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WeatherClient"
         mc:Ignorable="d"
-        Title="MainWindow" ResizeMode="NoResize" Height="500" Width="830">
+        Title="MainWindow" Height="500" Width="830">
     
     <Grid>
         <Frame x:Name="frame" NavigationUIVisibility="Hidden"/>

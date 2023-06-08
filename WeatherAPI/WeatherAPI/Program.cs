@@ -24,12 +24,11 @@ namespace WeatherAPI
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            // ј¬“ќ–»«ј÷»я
             string ISSUER = builder.Configuration["AuthOptions:ISSUER"];
             string AUDIENCE = builder.Configuration["AuthOptions:AUDIENCE"];
             string KEY = builder.Configuration["AuthOptions:KEY"];
 
+            builder.Services.AddCors();
             builder.Services.AddAuthorization();
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -70,6 +69,7 @@ namespace WeatherAPI
 
             var app = builder.Build();
 
+            app.UseCors(builder => builder.WithOrigins("https://localhost:7233").AllowAnyHeader().AllowAnyMethod().AllowCredentials());
             app.UseDefaultFiles();
             app.UseStaticFiles();
             //добавление мидлварей авторизации и аутентификации
@@ -126,7 +126,7 @@ namespace WeatherAPI
                         return Results.NoContent(); //ошибка с подключением к бд
                     }
 
-                    if (await userRepository.FindUserReg(userModel)) return Results.Conflict(); //ошибка 409
+                    if (await userRepository.FindUserReg(userModel)) return Results.Conflict(); //ошибка 409, если данный пользователь уже существует
 
                     await userRepository.RegistrationUser(userModel); //если пользователь не найден, регистрируем его
 

@@ -7,34 +7,59 @@
 <body>
     <div class="container col-lg-5 m-4 mx-auto shadow bg-body rounded" id="loginBlock">
         <div class="ps-3 pe-3 mb-3 pt-3">
-            <p>
-                Введите логин:<br />
+            <div id="authDiv" class="w-100">
+                <p>Введите логин:</p>
                 <input id="Login" class="w-100" type="text" />
-            </p>
-            <p>
-                Введите пароль:<br />
-                <input class="w-100" id="Password" type="password" />
-            </p>
-            <p class="text-danger fs-6" style="display: none" id="textAuthErrorRes">Данного пользователя не существует!</p>
-            <p class="text-danger fs-6" style="display: none" id="textRegErrorRes">Произошла ошибка регистрации, повторите позже</p>
-            <p class="text-success fs-6" style="display: none" id="textAuthGoodRes">Вы авторизировались</p>
-            <input class="btn btn-secondary d-grid col-6 mx-auto" id="loginBtn" type="button" value="Войти" />
-            <input class="btn btn-secondary d-grid col-6 mx-auto mt-2" id="regBtn" type="button" value="Зарегистрироваться" />
-            <p class="fs-6 invisible">hfgh</p>
+                <p class="mt-2">Введите пароль:</p>
+                <input class="w-100 mb-2" id="Password" type="password" />
+                <p class="text-danger fs-6 mt-2" style="display: none" id="textAuthErrorRes">Данного пользователя не существует!</p>
+                <p class="text-danger fs-6 mt-2" style="display: none" id="textRegErrorRes">Произошла ошибка регистрации, повторите позже</p>
+                <p class="text-success fs-6 mt-2" style="display: none" id="textAuthGoodRes">Вы авторизировались</p>
+                <input class="btn btn-secondary d-grid col-6 mx-auto" id="loginBtn" type="button" value="Войти" />
+                <input class="btn btn-secondary d-grid col-6 mx-auto mt-2" id="regBtn" type="button" value="Зарегистрироваться" />
+                <p class="fs-6 invisible">invisible text</p>
+            </div>
+
+            <div id="getWeatherDiv" class="w-100">
+                <p>Введите название города</p>
+                <input class="w-100" id="cityInput" name="city" type="text" />
+                <p class="text-danger fs-6 mt-2" style="display: none" id="cityNotFind">Извините, но такого города не существует!</p>
+                <p class="text-success fs-6 mt-2" style="display: none" id="cityFind">Город найден!</p>
+                <input class="btn btn-secondary d-grid col-6 mx-auto mt-2" id="getWeatherBtn" type="button" value="Получить прогноз погоды" />
+                <p class="fs-6 invisible">invisible text</p>
+            </div>
         </div>
     </div>
-    <br />
-    <div id="chatroom"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
     <script>
+        document.getElementById("getWeatherDiv").style.display = "none";
         let token;
         let username;
         const hubConnection = new signalR.HubConnectionBuilder()
             .withUrl("https://localhost:7175/weather", { accessTokenFactory: () => token })
             .build();
 
+        hubConnection.on("Send", function (listWeathers) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("AjaxMethodGetWeather", "Home")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({ listWeathers }),
+                dataType: "json",
+                success: SuccessWeather,
+            })
 
+            console.log(JSON.stringify({ listWeathers }));
+
+            function SuccessWeather() {
+                console.log("Данные о погоде получены пользователем!");
+            }
+        });
+
+        //при нажатии на кнопку авторизации
         document.getElementById("loginBtn").addEventListener("click", async () => {
+
+            //отправка запроса на сервер, на авторизацию пользователя
             const response = await fetch("https://localhost:7175/login", {
                 method: "POST",
                 headers: { "Accept": "application/json", "Content-Type": "application/json" },
@@ -49,22 +74,26 @@
                 // получаем данные
                 const data = await response.json();
                 token = data.access_token;
-                username = data.username;
 
                 hubConnection.start()       // начинаем соединение с хабом
                     .then(() => document.getElementById("textAuthGoodRes").style.display = "inline-block")
                     .catch(err => console.error(err.toString()));
 
-
+                //замена панели авторизации, регистрации, на панель запроса погоды от сервера
+                document.getElementById("authDiv").style.display = "none";
+                document.getElementById("getWeatherDiv").style.display = "inline-block";
             }
             else {
-                // если произошла ошибка, получаем код статуса
+                // если пользователь ввёл не верные данные
                 console.log(`Status: ${response.status}`);
                 document.getElementById("textAuthErrorRes").style.display = "inline-block";
             }
         });
 
+        //при нажатии на кнопку регистрации
         document.getElementById("regBtn").addEventListener("click", async () => {
+
+            //отправка запроса на сервер, на регистрацию пользователя
             document.getElementById("textAuthErrorRes").style.display = "none";
             const response = await fetch("https://localhost:7175/registration", {
                 method: "POST",
@@ -80,17 +109,52 @@
                 // получаем данные
                 const data = await response.json();
                 token = data.access_token;
-                username = data.username;
-                // document.getElementById("loginBtn").disabled = true;
 
-                hubConnection.start()       // начинаем соединение с хабом
+                await hubConnection.start()       // начинаем соединение с хабом
                     .then(() => document.getElementById("textAuthGoodRes").style.display = "inline-block")
                     .catch(err => console.error(err.toString()));
+
+                //замена панели авторизации, регистрации, на панель запроса погоды от сервера
+                document.getElementById("authDiv").style.display = "none";
+                document.getElementById("getWeatherDiv").style.display = "inline-block";
             }
             else {
-                // если произошла ошибка, получаем код статуса
+                // если произошла ошибка во время регистрации
                 console.log(`Status: ${response.status}`);
                 document.getElementById("textRegErrorRes").style.display = "inline-block";
+            }
+        });
+
+
+        //без перезагрузки страницы на сервер-клиенте получаем город
+        document.getElementById("getWeatherBtn").addEventListener("click", async () => {
+            let cityUser = document.getElementById("cityInput").value;
+            $.ajax({
+                url: '@Url.Action("AjaxMethodGetCity", "Home")',
+                contentType: "application/json; charset=utf-8",
+                data: { city: cityUser },
+                dataType: "json",
+                success: SuccessCity,
+                error: AjaxError
+            })
+
+            //если город найден, отправляем запрос на получение погоды к серверу
+            async function SuccessCity(data) {
+                document.getElementById("cityFind").style.display = "inline-block"
+                document.getElementById("cityNotFind").style.display = "none"
+                console.log(data.сity);
+                console.log(data.lattitude);
+                console.log(data.longitude);
+                console.log(data);
+
+                await hubConnection.invoke("WeatherMethod", data.сity, data.lattitude, data.longitude)
+                    .catch(error => console.error(error));
+            }
+
+            //в том случае, если введённый юзером город не найден
+            function AjaxError() {
+                document.getElementById("cityFind").style.display = "none"
+                document.getElementById("cityNotFind").style.display = "inline-block"
             }
         });
     </script>

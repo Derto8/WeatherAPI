@@ -47,9 +47,9 @@ namespace WebClient.Controllers
         }
 
         [HttpPost]
-        public IActionResult AjaxMethodGetWeather(string a)
+        public IActionResult AjaxMethodGetWeather([FromBody] List<Weather> weathers)
         {
-            //foreach(Weather weather in listWeathers)
+            //foreach(Weather weather in weathers)
             //{
             //    Debug.WriteLine(weather.Id);
             //    Debug.WriteLine(weather.City);

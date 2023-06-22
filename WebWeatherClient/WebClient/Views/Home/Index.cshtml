@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿﻿
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -6,7 +7,7 @@
 </head>
 <body>
     <div class="container col-lg-5 m-4 mx-auto shadow bg-body rounded" id="loginBlock">
-        <div class="ps-3 pe-3 mb-3 pt-3">
+        <div class="ps-3 pe-3 mb-5 pt-3">
             <div id="authDiv" class="w-100">
                 <p>Введите логин:</p>
                 <input id="Login" class="w-100" type="text" />
@@ -28,31 +29,39 @@
                 <input class="btn btn-secondary d-grid col-6 mx-auto mt-2" id="getWeatherBtn" type="button" value="Получить прогноз погоды" />
                 <p class="fs-6 invisible">invisible text</p>
             </div>
+
+            <div id="showWeatherDiv">
+                <p id="textWeather"></p>
+            </div>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
     <script>
         document.getElementById("getWeatherDiv").style.display = "none";
+        document.getElementById("showWeatherDiv").style.display = "none";
         let token;
         let username;
         const hubConnection = new signalR.HubConnectionBuilder()
             .withUrl("https://localhost:7175/weather", { accessTokenFactory: () => token })
             .build();
 
+        //получаем данные от сервера
         hubConnection.on("Send", function (listWeathers) {
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("AjaxMethodGetWeather", "Home")',
                 contentType: "application/json; charset=utf-8",
-                data: JSON.stringify( listWeathers ),
+                data: JSON.stringify(listWeathers),
                 dataType: "json",
                 success: SuccessWeather,
             })
 
-            console.log(JSON.stringify({ listWeathers }));
+            //получаем текст о погоде, 
+            function SuccessWeather(weatherText) {
+                document.getElementById("getWeatherDiv").style.display = "none";
+                document.getElementById("showWeatherDiv").style.display = "inline-block";
+                let text = document.getElementById("textWeather").textContent = weatherText;
 
-            function SuccessWeather() {
-                console.log("Данные о погоде получены пользователем!");
             }
         });
 
@@ -142,11 +151,6 @@
             async function SuccessCity(data) {
                 document.getElementById("cityFind").style.display = "inline-block"
                 document.getElementById("cityNotFind").style.display = "none"
-                console.log(data.сity);
-                console.log(data.lattitude);
-                console.log(data.longitude);
-                console.log(data);
-
                 await hubConnection.invoke("WeatherMethod", data.сity, data.lattitude, data.longitude)
                     .catch(error => console.error(error));
             }

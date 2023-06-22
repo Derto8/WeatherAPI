@@ -7,6 +7,8 @@ namespace WebClient
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllersWithViews();
+            builder.Services.AddMvc();
+            builder.Services.AddMemoryCache();
 
             var app = builder.Build();
 

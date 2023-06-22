@@ -64,8 +64,7 @@ namespace WeatherAPI
 
             string? connection = builder.Configuration.GetConnectionString("ConnectionDataBase"); 
             builder.Services.AddDbContext<WeatherContext>(options => options.UseSqlServer(connection));
-           // builder.Services.AddDbContext<UserContext>(options => options.UseSqlServer(connection));
-            builder.Services.AddHostedService<WeatherUpdateService>();
+           // builder.Services.AddHostedService<WeatherUpdateService>();
 
             var app = builder.Build();
 

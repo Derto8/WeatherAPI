@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR.Client;
 using System.Diagnostics;
+using System.IO;
+using System.Net.Mime;
+using System.Text;
 using WeatherModels;
 using WebClient.Classies;
 using WebClient.Models;
@@ -11,20 +14,19 @@ namespace WebClient.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private IConfiguration Configuration;
-        private HubConnection HubConnection;
-        private Uri Url;
+        private readonly IWebHostEnvironment AppEnvironment;
 
-        public HomeController(ILogger<HomeController> logger, IConfiguration configuration)
+        public HomeController(ILogger<HomeController> logger, IConfiguration configuration, IWebHostEnvironment appEnvironment)
         {
             _logger = logger;
             Configuration = configuration;
+            AppEnvironment = appEnvironment;
         }
 
         public IActionResult Index()
         {
             return View();
         }
-
 
         public IActionResult AjaxMethodGetCity(string city)
         {
@@ -46,32 +48,47 @@ namespace WebClient.Controllers
             return Json(data);
         }
 
+        //получает из ajax метода список погоды, преобразует в строку для удобного чтения и отсылает обратно
         [HttpPost]
         public IActionResult AjaxMethodGetWeather([FromBody] List<Weather> weathers)
         {
-            //foreach(Weather weather in weathers)
-            //{
-            //    Debug.WriteLine(weather.Id);
-            //    Debug.WriteLine(weather.City);
-            //    Debug.WriteLine(weather.Lattitude);
-            //    Debug.WriteLine(weather.Longitude);
-            //    Debug.WriteLine(weather.Date);
-            //    Debug.WriteLine(weather.MaxTemperature);
-            //    Debug.WriteLine(weather.MinTemperature);
-            //    Debug.WriteLine(weather.WeatherImageSource);
-            //    Debug.WriteLine(weather.WeatherDescription);
-            //    Debug.WriteLine(weather.Pressure);
-            //    Debug.WriteLine(weather.Humidity);
-            //    Debug.WriteLine(weather.WindSpeed);
-            //    Debug.WriteLine(weather.WindDir);
-            //    Debug.WriteLine(weather.FeelsLike);
-            //}
-            return Json("");
+            string city = weathers[0].City;
+            string weatherText = $"Weather forecast for the city: {city}\n";
+            string[] dayMas = new string[] {"Morning:", "Day:", "Evening:", "Night:"};
+            for(int i = 0; i < 28; i++)
+            {
+                string[] weatherDate = weathers[i].Date.ToString().Split(' ');
+                weatherText += $"\nDate: {weatherDate[0]}\n";
+                foreach (string day in dayMas)
+                {
+                    weatherText += $"\n{day}\n" +
+                        $"Max temperature: {weathers[i].MaxTemperature}\n" +
+                        $"Min temperature: {weathers[i].MinTemperature}\n" +
+                        $"Weather description: {weathers[i].WeatherDescription}\n" +
+                        $"Pressure: {weathers[i].Pressure}\n" +
+                        $"Humidity: {weathers[i].Humidity}\n" +
+                        $"WindDir: {weathers[i].WindDir}\n" +
+                        $"Weather feels like: {weathers[i].FeelsLike}\n";
+                }
+                i += 3;
+            }
+           // return RedirectToAction("Method", "Home", new { weatherText = weatherText});
+            return Json(weatherText);
         }
 
-        public IActionResult Privacy()
+        [HttpGet]
+        public IActionResult Method([FromQuery]string weatherText)
         {
-            return View();
+            ViewData["Weather"] = weatherText;
+            return Redirect("/Home/GetWeather");
+            //var ms = new MemoryStream();
+            //var writer = new StreamWriter(ms);
+            //await writer.WriteAsync(weatherText);
+            //await writer.FlushAsync();
+            //ms.Position = 0;
+
+            //Response.Headers.Add("Content-Disposition", "attachment;filename=some.txt");
+            //return File(ms, "text/plain");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

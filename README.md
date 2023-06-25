@@ -297,7 +297,7 @@ if(response.StatusCode == HttpStatusCode.OK)
 ## Task SendWeatherClient_SendRequest_ShouldReturnTrue
 Пространство имен: WeatherAPIIntegrationTestig
 
-Проверяет подключение к серверу.
+Тест проверяет подключение клиента к серверу и успешное получение данных от сервера.
 ```c#
 public async Task SendWeatherClient_SendRequest_ShouldReturnTrue()
 {

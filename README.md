@@ -105,7 +105,7 @@ public interface IWeatherRepository
 ## WeatherHub
 **Пространство имен:** WeatherAPI.Hubs
 
-Представляет класс унаследованный от **Hub<INotificationClient>**, реализует логику взаимодействия с **Yandex Weather API**, парсинг данных погоды и осуществляет отправку клиенту, с базовым типом аутентификации на основе **JWT-токена**.
+Представляет класс унаследованный от **Hub< INotificationClient >**, реализует логику взаимодействия с **Yandex Weather API**, парсинг данных погоды и осуществляет отправку клиенту, с базовым типом аутентификации на основе **JWT-токена**.
 
 ```c#
 public class WeatherHub : Hub<INotificationClient>

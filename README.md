@@ -1,5 +1,4 @@
-# WeatherAPIClient
-
+# WeatherAPI
 ### Стек технологий проекта:
 <img src="https://img.shields.io/badge/ASP.NET WEB API-black?style=for-the-badge&logo=.NET&logoColor=512BD4"/> <img src="https://img.shields.io/badge/WPF-black?style=for-the-badge&logo=.NET&logoColor=512BD4"/> <img src="https://img.shields.io/badge/ASP.NET MVC-black?style=for-the-badge&logo=.NET&logoColor=512BD4"/> <img src="https://img.shields.io/badge/SignalR-black?style=for-the-badge&logo=signal&logoColor=3A76F0"/> <img src="https://img.shields.io/badge/JavaScript-black?style=for-the-badge&logo=javascript&logoColor=F7DF1E"/> <img src="https://img.shields.io/badge/ORM EntityFramework-black?style=for-the-badge&logo=.NET&logoColor=512BD4"/> <img src="https://img.shields.io/badge/MSSQL Server-black?style=for-the-badge&logo=microsoftsqlserver&logoColor=CC2927"/> <img src="https://img.shields.io/badge/JSON-black?style=for-the-badge&logo=json&logoColor=white"/> <img src="https://img.shields.io/badge/AJAX-black?style=for-the-badge&logo=javascript&logoColor=3A76F0"/> <img src="https://img.shields.io/badge/JsonWebToken-black?style=for-the-badge&logo=jsonwebtokens&logoColor=white"/>
 <img src="https://img.shields.io/badge/JQuery-black?style=for-the-badge&logo=jquery&logoColor=0769AD"/> 
@@ -8,13 +7,24 @@
 - О проекте
 - Установка проекта
 - Интерфейсы
+	- INotificationClient
+  	- IUserRepository
+ 	- IWeatherRepository	 	
 - Конкретные реализации
+	- WeatherHub
+ 	- UserRepository
+  	- WeatherRepository
+	- WeatherUpdateService
 - Примеры обращения к API
+  	- Запрос к API с JavaScript клиента
+	- Запрос к API с .NET клиента
 - Тесты
+	- SendWeatherClient_SendRequest_ShouldReturnTrue 
 - Разработчик
 
 # О проекте:
-- Сервер написан на **WebApi**, с использованием **SignalR**, раз в час парсит данные погоды из **[YandexWeatherAPI](https://yandex.ru/dev/weather/)**, обновляет их в базе данных, по запросу от клиента присылает данные о погоде конкретного города клиенту на **WPF(.NET-клиент)**, либо **ASP.NET MVC (JavaScript-клиент)**. Клиент показывает информацию в удобном виде для пользователя. На сервере реализована авторизация клиента (логин-пароль) при помощи **JWT-токена**, настроена **политика CORS** для клиента на **JavaScript** и присутствует база данных с использованием **ORM EntityFramework** для хранения данных пользователя, и данных о погоде в городах.
+
+Сервер написан на **WebApi**, с использованием **SignalR**, раз в час парсит данные погоды из **[YandexWeatherAPI](https://yandex.ru/dev/weather/)**, обновляет их в базе данных, по запросу от клиента присылает данные о погоде конкретного города клиенту на **WPF(.NET-клиент)**, либо **ASP.NET MVC (JavaScript-клиент)**. Клиент показывает информацию в удобном виде для пользователя. На сервере реализована авторизация клиента (логин-пароль) при помощи **JWT-токена**, настроена **политика CORS** для клиента на **JavaScript** и присутствует база данных с использованием **ORM EntityFramework** для хранения данных пользователя, и данных о погоде в городах.
 
 # Установка проекта
 ### Проект WeatherAPI:
@@ -183,6 +193,166 @@ public class WeatherUpdateService : BackgroundService
 ### Вызов класса WeatherUpdateService в классе Program
 ```c#
 builder.Services.AddHostedService<WeatherUpdateService>();
+```
+
+# Примеры обращения к API
+## Запрос к API с JavaScript клиента
+
+```javascript
+
+//объвляем переменную подключения к хабу
+const hubConnection = new signalR.HubConnectionBuilder()
+    .withUrl("<yourServerIpAddress>/weather", { accessTokenFactory: () => token }) // для подключения нужен JWT-токен
+    .build();
+
+//обработчик получения данных с сервера
+hubConnection.on("Send", function (listWeathers) {
+// получаем данные в форме json, данные можно отослать на клиентский-asp.net mvc при помощи ajax, 
+//либо обработать каким-нибудь другим способом, пример с ajax:
+    $.ajax({
+	type: "POST",
+	url: '@Url.Action("Method", "Controller")',
+	contentType: "application/json; charset=utf-8",
+	data: JSON.stringify(listWeathers),
+	dataType: "json",
+    })
+});
+
+// соединение пользователя с хабом
+hubConnection.start()
+    .catch(err => console.error(err.toString()));
+
+//после соединения пользователя с хабом, пример отправки запроса к серверу на получение данных
+await hubConnection.invoke("WeatherMethod", data.сity, data.lattitude, data.longitude)
+    .catch(error => console.error(error));
+```
+Пример получения **JWT-токена** на **JavaScript**:
+```javascript
+let token;
+//отправка запроса на сервер, на авторизацию пользователя
+const response = await fetch("<yourServerIpAddress>/login", {
+     method: "POST",
+     headers: { "Accept": "application/json", "Content-Type": "application/json" },
+     body: JSON.stringify({
+	Login: document.getElementById("Login").value,
+	Password: document.getElementById("Password").value
+     }),
+});
+
+if (response.ok === true) {
+    // получаем данные
+    const data = await response.json();
+    token = data.access_token;
+}
+```
+## Запрос к API с .NET клиента
+```c#
+//объвляем переменную подключения к хабу
+HubConnection HubConnection = new HubConnectionBuilder()
+    .WithUrl("<yourServerIpAddress>/weather", options =>
+    {
+	options.AccessTokenProvider = () => Task.FromResult(UserToken.AccessToken); // регистрация получения JWT-токена
+    })
+    .WithAutomaticReconnect() //автоматическое переподключение
+    .Build();
+
+//обработчик получения данных с сервера
+HubConnection.On<List<Weather>>("Send", data => {
+    //какая-то работа с данными (List<Weather>)
+});
+
+//соединение пользователя с хабом
+await HubConnection.StartAsync();
+
+//после соединения пользователя с хабом, пример отправки запроса к серверу на получение данных
+await HubConnection.SendAsync("WeatherMethod", city, lattitude, longitude);
+```
+
+Пример получения **JWT-токена** на **.NET**:
+```c#
+string token = "";
+UserData userData = new UserData() { Login = "login", Password = "password" };
+HttpClient httpClient = new HttpClient();
+//сериализируем данные
+string json = JsonSerializer.Serialize(userData);
+StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+//отправляем запрос на сервер
+using var response = await httpClient.PostAsync("<yourServerIpAddress>/login", content);
+//получаем ответ от сервера
+if(response.StatusCode == HttpStatusCode.OK)
+{
+    string responseText = await response.Content.ReadAsStringAsync();
+    JToken jObject = JObject.Parse(responseText);
+    token = jObject["access_token"].ToString(); 
+}
+```
+
+# Тесты
+## Task SendWeatherClient_SendRequest_ShouldReturnTrue
+Проверяет подключение к серверу, 
+```c#
+public async Task SendWeatherClient_SendRequest_ShouldReturnTrue()
+{
+    //Arrange
+    WebApplicationFactory<Program> webHost = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+    {
+	builder.ConfigureTestServices(services =>
+	{
+	    //находим реальное подключение к бд в классе Program
+	    var dbContextDescriptor = services.SingleOrDefault(d =>
+	    d.ServiceType == typeof(DbContextOptions<WeatherContext>));
+
+	    //удаляем его
+	    services.Remove(dbContextDescriptor);
+
+	    //создаём контекст базы данных для тестов
+	    services.AddDbContext<WeatherContext>(options =>
+	    {
+		options.UseInMemoryDatabase("weather_test_db");
+	    });
+	});
+    });
+
+    //создаём scope для контекста бд
+    WeatherContext dbContext = webHost.Services.CreateScope().ServiceProvider.GetService<WeatherContext>();
+
+    //Act
+
+    //заполняем список рандомными данными
+    List<Weather> weathers = DataDBContext.GetWeatherData();
+
+    //заполняем бд
+    await dbContext.WeatherTable.AddRangeAsync(weathers);
+    await dbContext.SaveChangesAsync();
+
+    //создаем мок конфигурации
+    var mockConf = new Mock<Microsoft.Extensions.Configuration.IConfiguration>();
+
+    //создаём экземлряр хаба
+    var hub = new WeatherHub(mockConf.Object, dbContext);
+
+    //мок экземляр, с которого вызываем методы на клиенте
+    var mockClients = new Mock<IHubCallerClients<INotificationClient>>();
+    hub.Clients = mockClients.Object;
+
+    //проверка дошли ли данные до клиента
+    bool sendCalled = false;
+
+    dynamic all = new ExpandoObject();
+    //функция getWeather определяется для фиктивного клиента, чтобы ее можно было вызвать из класса WeatherHub
+    all.getWeather = new Action<List<Weather>>((weathers) =>
+    {
+    	// если данные успешно пришли клиенту, то меняем флаг sendCalled на true
+	sendCalled = true;
+    });
+    mockClients.Setup(m => m.All).Returns(all);
+    //отправляем данные клиенту
+    await hub.SendWeatherClient(weathers);
+
+    //Assert
+    // если данные пришли клиенту, то тест считается пройденным
+    Assert.True(sendCalled);
+}
 ```
 # Разработчик
 - [Николай Полозов](https://github.com/Derto8)

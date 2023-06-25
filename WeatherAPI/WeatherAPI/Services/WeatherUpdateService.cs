@@ -50,18 +50,25 @@ namespace WeatherAPI.Services
                         {
                             allWeathers.Add(await GetWeather(weather.City, weather.Lattitude, weather.Longitude));
                         }
-
-                        int i = 0;
-                        foreach (List<Weather> listWeather in allWeathers)
+                        foreach (List<Weather> w in allWeathers)
                         {
-                            foreach (Weather weather in listWeather)
+                            if (w != null)
                             {
-                                await weatherRepository.Update(weathers[i], weather);
-                                i++;
+                                int i = 0;
+                                foreach (List<Weather> listWeather in allWeathers)
+                                {
+                                    foreach (Weather weather in listWeather)
+                                    {
+                                        await weatherRepository.Update(weathers[i], weather);
+                                        i++;
+                                    }
+                                }
+                                Debug.WriteLine("Произошло обновление погоды в базе даных");
+                                await Task.Delay(3600000);
                             }
+                            else
+                                continue;
                         }
-                        Debug.WriteLine("Произошло обновление погоды в базе даных");
-                        await Task.Delay(3600000);
                     }
                 }
                 catch(Exception ex)
@@ -81,44 +88,55 @@ namespace WeatherAPI.Services
             HttpClient httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("X-Yandex-API-Key", Configuration["YandexKey"]);
             HttpResponseMessage? resp = await httpClient.GetAsync(apiUrl);
-            string? json = await resp.Content.ReadAsStringAsync();
-            JToken jObject = JObject.Parse(json);
-
-
-            string[] dayCycle = new string[] { "morning", "day", "evening", "night" };
-            List<Weather> weatherSendClient = new List<Weather>();
-
-            int daysTemp = jObject["forecasts"].Count();
-            for (int i = 0; i < daysTemp; i++)
+            if (resp.StatusCode == System.Net.HttpStatusCode.Forbidden)
             {
-                foreach (string c in dayCycle)
+                for (int i = 0; i < 10; i++)
                 {
-                    Weather weather = new Weather();
-                    DateTime date = jObject["forecasts"][i]["date"].ToObject<DateTime>();
-                    string minTemp = jObject["forecasts"][i]["parts"][c]["temp_min"].ToObject<string>();
-                    string maxTemp = jObject["forecasts"][i]["parts"][c]["temp_max"].ToObject<string>();
-                    string pressure = jObject["forecasts"][i]["parts"][c]["pressure_mm"].ToObject<string>();
-                    string humidity = jObject["forecasts"][i]["parts"][c]["humidity"].ToObject<string>();
-                    string windSpeed = jObject["forecasts"][i]["parts"][c]["wind_speed"].ToObject<string>();
-                    string windDir = jObject["forecasts"][i]["parts"][c]["wind_dir"].ToObject<string>();
-                    string feelsLike = jObject["forecasts"][i]["parts"][c]["feels_like"].ToObject<string>();
-                    string imageSource = jObject["forecasts"][i]["parts"][c]["icon"].ToObject<string>();
-                    string weatherDesc = jObject["forecasts"][i]["parts"][c]["condition"].ToObject<string>();
+                    Debug.WriteLine("Срок действия Yandex-токена закончился!");
+                }
+                return null;
+            }
+            List<Weather> weatherSendClient = new List<Weather>();
+            if (resp.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                string? json = await resp.Content.ReadAsStringAsync();
+                JToken jObject = JObject.Parse(json);
 
-                    weather.City = city;
-                    weather.Lattitude = lattitude;
-                    weather.Longitude = longitude;
-                    weather.Date = date;
-                    weather.MinTemperature = minTemp;
-                    weather.MaxTemperature = maxTemp;
-                    weather.Pressure = pressure;
-                    weather.Humidity = humidity;
-                    weather.WindSpeed = windSpeed;
-                    weather.WindDir = windDir;
-                    weather.FeelsLike = feelsLike;
-                    weather.WeatherImageSource = new Uri($"https://yastatic.net/weather/i/icons/funky/dark/{imageSource}.svg");
-                    weather.WeatherDescription = weatherDesc;
-                    weatherSendClient.Add(weather);
+
+                string[] dayCycle = new string[] { "morning", "day", "evening", "night" };
+
+                int daysTemp = jObject["forecasts"].Count();
+                for (int i = 0; i < daysTemp; i++)
+                {
+                    foreach (string c in dayCycle)
+                    {
+                        Weather weather = new Weather();
+                        DateTime date = jObject["forecasts"][i]["date"].ToObject<DateTime>();
+                        string minTemp = jObject["forecasts"][i]["parts"][c]["temp_min"].ToObject<string>();
+                        string maxTemp = jObject["forecasts"][i]["parts"][c]["temp_max"].ToObject<string>();
+                        string pressure = jObject["forecasts"][i]["parts"][c]["pressure_mm"].ToObject<string>();
+                        string humidity = jObject["forecasts"][i]["parts"][c]["humidity"].ToObject<string>();
+                        string windSpeed = jObject["forecasts"][i]["parts"][c]["wind_speed"].ToObject<string>();
+                        string windDir = jObject["forecasts"][i]["parts"][c]["wind_dir"].ToObject<string>();
+                        string feelsLike = jObject["forecasts"][i]["parts"][c]["feels_like"].ToObject<string>();
+                        string imageSource = jObject["forecasts"][i]["parts"][c]["icon"].ToObject<string>();
+                        string weatherDesc = jObject["forecasts"][i]["parts"][c]["condition"].ToObject<string>();
+
+                        weather.City = city;
+                        weather.Lattitude = lattitude;
+                        weather.Longitude = longitude;
+                        weather.Date = date;
+                        weather.MinTemperature = minTemp;
+                        weather.MaxTemperature = maxTemp;
+                        weather.Pressure = pressure;
+                        weather.Humidity = humidity;
+                        weather.WindSpeed = windSpeed;
+                        weather.WindDir = windDir;
+                        weather.FeelsLike = feelsLike;
+                        weather.WeatherImageSource = new Uri($"https://yastatic.net/weather/i/icons/funky/dark/{imageSource}.svg");
+                        weather.WeatherDescription = weatherDesc;
+                        weatherSendClient.Add(weather);
+                    }
                 }
             }
             return weatherSendClient;

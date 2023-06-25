@@ -1,18 +1,9 @@
-﻿using Castle.Core.Configuration;
-using Flurl.Http;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WeatherAPI.Authorization;
 using WeatherAPI.DataBaseContext;
 using WeatherAPI.Hubs;
 using WeatherAPI.Interfaces;
@@ -22,11 +13,11 @@ using WeatherModels;
 namespace WeatherAPIIntegrationTestig
 {
     [TestFixture]
-    public class TestAuthorization
+    public class TestWeatherAPI
     {
 
         [Test]
-        public async Task WeatherMethodt_SendRequest_ShouldReturnListWeather()
+        public async Task SendWeatherClient_SendRequest_ShouldReturnTrue()
         {
             //Arrange
 
@@ -54,36 +45,37 @@ namespace WeatherAPIIntegrationTestig
 
             //Act
 
+            //заполняем список рандомными данными
             List<Weather> weathers = DataDBContext.GetWeatherData();
 
 
-            //заполняем бд рандомными данными
+            //заполняем бд
             await dbContext.WeatherTable.AddRangeAsync(weathers);
             await dbContext.SaveChangesAsync();
 
             //создаем мок конфигурации
-            var mockRepo = new Mock<Microsoft.Extensions.Configuration.IConfiguration>();
+            var mockConf = new Mock<Microsoft.Extensions.Configuration.IConfiguration>();
 
             //создаём экземлряр хаба
-            var hub = new WeatherHub(mockRepo.Object, dbContext);
+            var hub = new WeatherHub(mockConf.Object, dbContext);
 
             //мок экземляр, с которого вызываем методы на клиенте
             var mockClients = new Mock<IHubCallerClients<INotificationClient>>();
             hub.Clients = mockClients.Object;
 
+            //проверка дошли ли данные до клиента
             bool sendCalled = false;
 
             dynamic all = new ExpandoObject();
-            all.broadcastMessage = new Action<List<Weather>>((weathers) =>
+            all.getWeather = new Action<List<Weather>>((weathers) =>
             {
                 sendCalled = true;
             });
 
-         //   mockClients.Setup(m => m.All).Returns((ExpandoObject)all);
+            mockClients.Setup(m => m.All).Returns(all);
             await hub.SendWeatherClient(weathers);
 
             //Assert
-
             Assert.True(sendCalled);
         }
     }

@@ -10,8 +10,8 @@ namespace WeatherAPI.DataBaseContext
         {
             Database.EnsureCreated();
         }
-        internal DbSet<Weather> WeatherTable { get; set; }
-        internal DbSet<UserData> UsersData { get; set; }
+        public DbSet<Weather> WeatherTable { get; set; }
+        public DbSet<UserData> UsersData { get; set; }
 
     }
 }

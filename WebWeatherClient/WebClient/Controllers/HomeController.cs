@@ -25,9 +25,16 @@ namespace WebClient.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            IConfigurationSection connSection = Configuration.GetSection("ConnectionStrings");
+            string connectAPIServer = connSection.GetSection("GetWeatherUrl").Value;
+            string connectAPIServerAuth = connSection.GetSection("ServerAuthorizationUrl").Value;
+            string connectAPIServerReg = connSection.GetSection("ServerRegistrationUrl").Value;
+
+            List<string> conf = new List<string> { connectAPIServer, connectAPIServerAuth, connectAPIServerReg };
+            return View(conf);
         }
 
+        //преобразуем город вписанный клиентом, в нужный для сервера формат
         public IActionResult AjaxMethodGetCity(string city)
         {
             if (city == null || string.IsNullOrWhiteSpace(city))

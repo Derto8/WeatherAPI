@@ -1,4 +1,4 @@
-﻿﻿
+﻿@model List<string>
 <!DOCTYPE html>
 <html>
 <head>
@@ -42,7 +42,7 @@
         let token;
         let username;
         const hubConnection = new signalR.HubConnectionBuilder()
-            .withUrl("https://localhost:7175/weather", { accessTokenFactory: () => token })
+            .withUrl("@Model[0]", { accessTokenFactory: () => token })
             .build();
 
         //получаем данные от сервера
@@ -69,7 +69,7 @@
         document.getElementById("loginBtn").addEventListener("click", async () => {
 
             //отправка запроса на сервер, на авторизацию пользователя
-            const response = await fetch("https://localhost:7175/login", {
+            const response = await fetch("@Model[1]", {
                 method: "POST",
                 headers: { "Accept": "application/json", "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -104,7 +104,7 @@
 
             //отправка запроса на сервер, на регистрацию пользователя
             document.getElementById("textAuthErrorRes").style.display = "none";
-            const response = await fetch("https://localhost:7175/registration", {
+            const response = await fetch("@Model[2]", {
                 method: "POST",
                 headers: { "Accept": "application/json", "Content-Type": "application/json" },
                 body: JSON.stringify({

@@ -1,8 +1,6 @@
 # WeatherAPI
 ### Стек технологий проекта:
-<img src="https://img.shields.io/badge/ASP.NET WEB API-black?style=for-the-badge&logo=.NET&logoColor=512BD4"/> <img src="https://img.shields.io/badge/WPF-black?style=for-the-badge&logo=.NET&logoColor=512BD4"/> <img src="https://img.shields.io/badge/ASP.NET MVC-black?style=for-the-badge&logo=.NET&logoColor=512BD4"/> <img src="https://img.shields.io/badge/SignalR-black?style=for-the-badge&logo=signal&logoColor=3A76F0"/> <img src="https://img.shields.io/badge/JavaScript-black?style=for-the-badge&logo=javascript&logoColor=F7DF1E"/> <img src="https://img.shields.io/badge/ORM EntityFramework-black?style=for-the-badge&logo=.NET&logoColor=512BD4"/> <img src="https://img.shields.io/badge/MSSQL Server-black?style=for-the-badge&logo=microsoftsqlserver&logoColor=CC2927"/> <img src="https://img.shields.io/badge/JSON-black?style=for-the-badge&logo=json&logoColor=white"/> <img src="https://img.shields.io/badge/AJAX-black?style=for-the-badge&logo=javascript&logoColor=3A76F0"/> <img src="https://img.shields.io/badge/JsonWebToken-black?style=for-the-badge&logo=jsonwebtokens&logoColor=white"/>
-<img src="https://img.shields.io/badge/JQuery-black?style=for-the-badge&logo=jquery&logoColor=0769AD"/> 
-
+<img src="https://img.shields.io/badge/ASP.NET WEB API-black?style=for-the-badge&logo=.NET&logoColor=512BD4"/> <img src="https://img.shields.io/badge/WPF-black?style=for-the-badge&logo=.NET&logoColor=512BD4"/> <img src="https://img.shields.io/badge/ASP.NET MVC-black?style=for-the-badge&logo=.NET&logoColor=512BD4"/> <img src="https://img.shields.io/badge/SignalR-black?style=for-the-badge&logo=signal&logoColor=3A76F0"/> <img src="https://img.shields.io/badge/JavaScript-black?style=for-the-badge&logo=javascript&logoColor=F7DF1E"/> <img src="https://img.shields.io/badge/ORM EntityFramework-black?style=for-the-badge&logo=.NET&logoColor=512BD4"/> <img src="https://img.shields.io/badge/MSSQL Server-black?style=for-the-badge&logo=microsoftsqlserver&logoColor=CC2927"/> <img src="https://img.shields.io/badge/JSON-black?style=for-the-badge&logo=json&logoColor=white"/> <img src="https://img.shields.io/badge/AJAX-black?style=for-the-badge&logo=javascript&logoColor=3A76F0"/> <img src="https://img.shields.io/badge/JsonWebToken-black?style=for-the-badge&logo=jsonwebtokens&logoColor=white"/> <img src="https://img.shields.io/badge/JQuery-black?style=for-the-badge&logo=jquery&logoColor=0769AD"/> <img src="https://img.shields.io/badge/ASP.NET WEB API INTEGRATION TESTS NUNIT-black?style=for-the-badge&logo=.NET&logoColor=512BD4"/>
 # Содержание
 - О проекте
 - Установка проекта
@@ -197,6 +195,7 @@ builder.Services.AddHostedService<WeatherUpdateService>();
 
 # Примеры обращения к API
 ## Запрос к API с JavaScript клиента
+Пространство имен: WebClient.Views.Home
 
 ```javascript
 
@@ -227,6 +226,9 @@ await hubConnection.invoke("WeatherMethod", data.сity, data.lattitude, data.lon
     .catch(error => console.error(error));
 ```
 Пример получения **JWT-токена** на **JavaScript**:
+
+Пространство имен: WebClient.Views.Home
+
 ```javascript
 let token;
 //отправка запроса на сервер, на авторизацию пользователя
@@ -246,6 +248,8 @@ if (response.ok === true) {
 }
 ```
 ## Запрос к API с .NET клиента
+Пространство имен: WeatherClient.Pages
+
 ```c#
 //объвляем переменную подключения к хабу
 HubConnection HubConnection = new HubConnectionBuilder()
@@ -269,6 +273,8 @@ await HubConnection.SendAsync("WeatherMethod", city, lattitude, longitude);
 ```
 
 Пример получения **JWT-токена** на **.NET**:
+
+Пространство имен: WeatherClient.Pages
 ```c#
 string token = "";
 UserData userData = new UserData() { Login = "login", Password = "password" };
@@ -289,7 +295,9 @@ if(response.StatusCode == HttpStatusCode.OK)
 
 # Тесты
 ## Task SendWeatherClient_SendRequest_ShouldReturnTrue
-Проверяет подключение к серверу, 
+Пространство имен: WeatherAPIIntegrationTestig
+
+Проверяет подключение к серверу.
 ```c#
 public async Task SendWeatherClient_SendRequest_ShouldReturnTrue()
 {
